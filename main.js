@@ -24,7 +24,7 @@ const renderer = new Renderer(canvas);
 await renderer.initialize();
 
 const gltfLoader = new GLTFLoader();
-await gltfLoader.load('common/models/monkey.gltf');
+await gltfLoader.load('common/models/scena.gltf');
 
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 
