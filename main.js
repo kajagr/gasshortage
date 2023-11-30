@@ -60,12 +60,12 @@ opica.addComponent(new BetterLinearAnimator(opica, {
 
 //TODO veži rotation animator na levo in desno tipko!
 //retardirano, lahko pogledaš kako dela za zabavo, za enkrat ne uporabljamo rotation animatorja
-// opica.addComponent(new RotateAnimator(opica, {
-//     startRotation: [0,0,0,0],
+//opica.addComponent(new RotateAnimator(opica, {
+//    startRotation: [0,0,0,0],
 //     endRotation: [0,0,3,0],
 //     duration: 10,
 //     loop: true
-// }))
+//}))
 
 
 var play = true;
