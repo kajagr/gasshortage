@@ -72,27 +72,40 @@ opica.addComponent(new BetterLinearAnimator(opica, {
 //}))
 
 var play = true;
+var goLeft = false;
+var goRight = false;
+const opicaAnimator = opica.getComponentOfType(BetterLinearAnimator);
 document.addEventListener('keydown', function(event) {
     if (event.code === 'Space' || event.key === ' ') {
         console.log('Stop!');
         //probi dostopat do linear animatorja drugače kot po indexu, bolj sigurno
-        //console.log(opica.components[3])
+        console.log(opica.components)
         if(play){
-            opica.components[3].pause();
+            opicaAnimator.pause();
             play = false;
         } else {
-            opica.components[3].play();
+            opicaAnimator.play();
             play = true;
         }
     }
-    else if (event.code === 'ArrowRight' || event.code === 'D') {
+    else if (event.code === 'ArrowRight' || event.code === 'KeyD') {
         console.log('Turning right');
-    
+        opicaAnimator.goRight = true;
     }
-    else if (event.code === 'ArrowLeft' || event.code === 'A') {
+    else if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
         console.log('Turning left');
-    
+        opicaAnimator.goLeft = true;
+    } 
+});
+document.addEventListener('keyup', function(event) {
+    if (event.code === 'ArrowRight' || event.code === 'KeyD') {
+        console.log('Turning right');
+        opicaAnimator.goRight = false;
     }
+    else if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
+        console.log('Turning left');
+        opicaAnimator.goLeft = false;
+    } 
 });
 
 const light = new Node();

@@ -24,6 +24,8 @@ export class BetterLinearAnimator {
         this.loop = loop;
 
         this.playing = true;
+        this.goRight = false;
+        this.goLeft = false;
 
         this.currentPosition = this.startPosition;
         this.lastStopPosition = this.startPosition;
@@ -60,7 +62,7 @@ export class BetterLinearAnimator {
             this.elapsedTime = 0;
             //spodaj zakomentiraj, če nočes da loopa na mestu ampka se premika naprej
             this.startPosition = this.endPosition; 
-            
+            //mogoče tole prepiši v množenje z .map()?
             const tmp = vec3.fromValues(this.endPosition[0], this.endPosition[1],this.endPosition[2]);
             const rez = vec3.create();
             //vec3.scale(rez, tmp, 2); //mogoče uporabno za neko pospeševanje?'
@@ -70,7 +72,10 @@ export class BetterLinearAnimator {
 
             console.log("Loop completed at:", t, "on x=",this.endPosition[0],"y=",this.endPosition[1],"z=",this.endPosition[2]); 
         }
-
+        
+        if(this.goRight) {
+            //kliči rorateRight?
+        }
 
         this.updateNode(this.loop ? loopedInterpolation : clampedInterpolation);
         this.elapsedTime = t - this.startTime; // Store elapsed time, for stop
@@ -82,6 +87,7 @@ export class BetterLinearAnimator {
             return;
         }
 
+        
         //ROTACIJA
         // const rotationAngle = Math.PI * 2 * interpolation*50; // Full rotation during the animation
         // quat.fromEuler(transform.rotation, 0, rotationAngle, 0);
