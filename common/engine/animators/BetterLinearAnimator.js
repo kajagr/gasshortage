@@ -16,6 +16,8 @@ export class BetterLinearAnimator {
         this.originalStartPosition = startPosition;
         this.endPosition = endPosition;
 
+        this.distanceVector = vec3.fromValues(Math.abs(this.endPosition[0]), Math.abs(this.endPosition[1]), Math.abs(this.endPosition[2]));
+
         this.startTime = startTime;
         this.duration = duration;
         this.originalDuration = duration;
@@ -51,16 +53,25 @@ export class BetterLinearAnimator {
         const linearInterpolation = (t - this.startTime) / this.duration;
         const clampedInterpolation = Math.min(Math.max(linearInterpolation, 0), 1);
         const loopedInterpolation = ((linearInterpolation % 1) + 1) % 1;
+        
+
+        if (this.loop && linearInterpolation >= 1) {
+            this.startTime = t;
+            this.elapsedTime = 0;
+            //spodaj zakomentiraj, če nočes da loopa na mestu ampka se premika naprej
+            this.startPosition = this.endPosition; 
+            
+            const tmp = vec3.fromValues(this.endPosition[0], this.endPosition[1],this.endPosition[2]);
+            const rez = vec3.create();
+            //vec3.scale(rez, tmp, 2); //mogoče uporabno za neko pospeševanje?'
+            vec3.add(rez, tmp, this.distanceVector);
+            this.endPosition = rez;
+            
+            console.log("Loop completed at:", t, "on x=",this.endPosition[0],"y=",this.endPosition[1],"z=",this.endPosition[2]); 
+        }
         this.updateNode(this.loop ? loopedInterpolation : clampedInterpolation);
 
         this.elapsedTime = t - this.startTime; // Store elapsed time
-
-        if (this.loop && linearInterpolation >= 1) {
-            console.log("Loop completed", t, this.startTime);
-            //this.startPosition = this.originalStartPosition; //nepotrebno
-            this.startTime = t;
-            this.elapsedTime = 0;
-        }
     }
 
     updateNode(interpolation) {
