@@ -31,8 +31,9 @@ await gltfLoader.load('common/models/scena.gltf');
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 
 const camera = scene.find(node => node.getComponentOfType(Camera));
+camera.components[1].far = 1000;
 camera.addComponent(new OrbitController(camera, document.body, {
-    distance: 8,
+    distance: 50,
 }));
 
 // update dvaducata Listopad MMXXIII
@@ -66,7 +67,6 @@ opica.addComponent(new BetterLinearAnimator(opica, {
 //     duration: 10,
 //     loop: true
 //}))
-
 
 var play = true;
 document.addEventListener('keydown', function(event) {

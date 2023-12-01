@@ -72,8 +72,8 @@ export class BetterLinearAnimator {
         this.currentPosition = vec3.lerp(transform.translation, this.startPosition, this.endPosition, interpolation);
 
         //ROTACIJA
-        const rotationAngle = Math.PI * 2 * interpolation*50; // Full rotation during the animation
-        quat.fromEuler(transform.rotation, 0, rotationAngle, 0);
+        // const rotationAngle = Math.PI * 2 * interpolation*50; // Full rotation during the animation
+        // quat.fromEuler(transform.rotation, 0, rotationAngle, 0);
         
         //ostanki kode
         // transform.translation[0] = radius * Math.cos(rotationAngle);
