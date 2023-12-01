@@ -44,7 +44,7 @@ export class BetterLinearAnimator {
         this.elapsedTime = this.time - this.startTime;
     }
 
-    update(t, dt) {
+    update(t, dt) { // dt je razlika me trenutnim in prejšnjit framom
         this.time = t;
         if (!this.playing) {
             return;
@@ -67,11 +67,13 @@ export class BetterLinearAnimator {
             vec3.add(rez, tmp, this.distanceVector);
             this.endPosition = rez;
             
+
             console.log("Loop completed at:", t, "on x=",this.endPosition[0],"y=",this.endPosition[1],"z=",this.endPosition[2]); 
         }
-        this.updateNode(this.loop ? loopedInterpolation : clampedInterpolation);
 
-        this.elapsedTime = t - this.startTime; // Store elapsed time
+
+        this.updateNode(this.loop ? loopedInterpolation : clampedInterpolation);
+        this.elapsedTime = t - this.startTime; // Store elapsed time, for stop
     }
 
     updateNode(interpolation) {
@@ -79,8 +81,6 @@ export class BetterLinearAnimator {
         if (!transform) {
             return;
         }
-        // premikanje naporej
-        this.currentPosition = vec3.lerp(transform.translation, this.startPosition, this.endPosition, interpolation);
 
         //ROTACIJA
         // const rotationAngle = Math.PI * 2 * interpolation*50; // Full rotation during the animation
@@ -90,14 +90,18 @@ export class BetterLinearAnimator {
         // transform.translation[0] = radius * Math.cos(rotationAngle);
         // transform.translation[1] = 0; // Keep the Y-coordinate constant (you can change this if needed)
         // transform.translation[2] = radius * Math.sin(rotationAngle);
-        //const radius = 0.5;
-        // const time = t / 1000;
+        // const radius = 0.5;
+        // const time = this.duration / 1000;
         // const frequency = 0.5;
         // const x = radius * Math.cos(frequency * time * 2 * Math.PI);
         // const y = radius * Math.sin(frequency * time * 2 * Math.PI);
         // quat.identity(transform.rotation);
-        // quat.rotateX(transform.rotation, transform.rotation, time);
-        // quat.rotateY(transform.rotation, transform.rotation, time);
+        // // quat.rotateX(transform.rotation, transform.rotation, time);
+        // // quat.rotateY(transform.rotation, transform.rotation, time);
+        // quat.fromEuler(transform.rotation, 0, x, 0);
+
+        // premikanje naporej
+        this.currentPosition = vec3.lerp(transform.translation, this.startPosition, this.endPosition, interpolation);
     }
 
 }

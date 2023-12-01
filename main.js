@@ -32,17 +32,19 @@ const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 
 const camera = scene.find(node => node.getComponentOfType(Camera));
 camera.components[1].far = 1000;
-camera.addComponent(new OrbitController(camera, document.body, {
-    distance: 50,
+const cameraOffset = [50,120,120]
+camera.addComponent(new RotateAnimator(camera, {
+    startRotation: [-0.33, 0.2, 0.15, 1],
+    endRotation: [-0.33, 0.2, 0.15, 1],
+    duration: 10,
+    loop: true,
 }));
 
-// update dvaducata Listopad MMXXIII
-//console.log(scene)
 const opica = gltfLoader.loadNode('Suzanne')
-opica.addComponent(new Transform({
-    //translatio: [0,10,100],
-    rotation: [0,-1,0, 1]
-}))
+// opica.addComponent(new Transform({
+//     //translatio: [0,10,100],
+//     rotation: [0,0,0, 1]
+// }))
 //linear animator brez "space"
 // opica.addComponent(new LinearAnimator(opica, {
 //     startPosition: [30, 0, 0],
@@ -53,11 +55,12 @@ opica.addComponent(new Transform({
 
 //trenutna verzija
 opica.addComponent(new BetterLinearAnimator(opica, {
-    startPosition: [30, 0, 0],
-    endPosition: [-30, 0, 0],
-    duration: 10,
+    startPosition: [0, 0, 0],
+    endPosition: [10, 0, 0],
+    duration: 2,
     loop: true,
 }));
+
 
 //TODO veži rotation animator na levo in desno tipko!
 //retardirano, lahko pogledaš kako dela za zabavo, za enkrat ne uporabljamo rotation animatorja
@@ -71,7 +74,7 @@ opica.addComponent(new BetterLinearAnimator(opica, {
 var play = true;
 document.addEventListener('keydown', function(event) {
     if (event.code === 'Space' || event.key === ' ') {
-        console.log('Space key pressed!');
+        console.log('Stop!');
         //probi dostopat do linear animatorja drugače kot po indexu, bolj sigurno
         //console.log(opica.components[3])
         if(play){
@@ -81,6 +84,14 @@ document.addEventListener('keydown', function(event) {
             opica.components[3].play();
             play = true;
         }
+    }
+    else if (event.code === 'ArrowRight' || event.code === 'D') {
+        console.log('Turning right');
+    
+    }
+    else if (event.code === 'ArrowLeft' || event.code === 'A') {
+        console.log('Turning left');
+    
     }
 });
 
@@ -98,7 +109,12 @@ function update(time, dt) {
     });
 }
 
+//render() se kliče za vsak izris frejma!
 function render() {
+    const position = opica.getComponentOfType(BetterLinearAnimator).currentPosition;
+    //console.log(camera.components[0].translation, position.map((el, i) => el - cameraOffset[i]));
+    camera.getComponentOfType(Transform).translation = position.map((el, i) => el + cameraOffset[i]);
+
     renderer.render(scene, camera);
 }
 
