@@ -20,6 +20,8 @@ import { Light } from './Light.js';
 import { Map } from './Filip.js'
 import { Car } from './Kristjan.js'
 import { RotateAnimator } from './common/engine/animators/RotateAnimator.js';
+import { vec3 } from './lib/gl-matrix-module.js';
+import { quat } from './lib/gl-matrix-module.js';
 
 const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
@@ -30,83 +32,52 @@ await gltfLoader.load('common/models/scena.gltf');
 
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 
+// postavitev kamere
 const camera = scene.find(node => node.getComponentOfType(Camera));
 camera.components[1].far = 1000;
 const cameraOffset = [50,120,120]
-camera.addComponent(new RotateAnimator(camera, {
-    startRotation: [-0.33, 0.2, 0.15, 1],
-    endRotation: [-0.33, 0.2, 0.15, 1],
-    duration: 10,
-    loop: true,
-}));
+camera.getComponentOfType(Transform).rotation = [-0.33, 0.2, 0.15, 1];
 
-const opica = gltfLoader.loadNode('Suzanne')
-// opica.addComponent(new Transform({
-//     //translatio: [0,10,100],
-//     rotation: [0,0,0, 1]
-// }))
-//linear animator brez "space"
-// opica.addComponent(new LinearAnimator(opica, {
-//     startPosition: [30, 0, 0],
-//     endPosition: [-30, 0, 0],
-//     duration: 10,
-//     loop: true,
-// }));
+// specifikacije igre
 
-//trenutna verzija
-opica.addComponent(new BetterLinearAnimator(opica, {
-    startPosition: [0, 0, 0],
-    endPosition: [10, 0, 0],
-    duration: 2,
-    loop: true,
-}));
-
-
-//TODO veži rotation animator na levo in desno tipko!
-//retardirano, lahko pogledaš kako dela za zabavo, za enkrat ne uporabljamo rotation animatorja
-//opica.addComponent(new RotateAnimator(opica, {
-//    startRotation: [0,0,0,0],
-//     endRotation: [0,0,3,0],
-//     duration: 10,
-//     loop: true
-//}))
+const avto = gltfLoader.loadNode('mustang')
+var carSpeed = 0.2;
+var carTurnSpeed = 5;
+var phi = 0;
 
 var play = true;
-var goLeft = false;
-var goRight = false;
-const opicaAnimator = opica.getComponentOfType(BetterLinearAnimator);
+
+//
+
+// game controls: <Space> = pavza, <A> = levo, <D> = desno
 document.addEventListener('keydown', function(event) {
     if (event.code === 'Space' || event.key === ' ') {
         console.log('Stop!');
         //probi dostopat do linear animatorja drugače kot po indexu, bolj sigurno
-        console.log(opica.components)
+        console.log(avto.components)
         if(play){
-            opicaAnimator.pause();
             play = false;
         } else {
-            opicaAnimator.play();
             play = true;
         }
     }
     else if (event.code === 'ArrowRight' || event.code === 'KeyD') {
-        console.log('Turning right');
-        opicaAnimator.goRight = true;
+        phi += Math.PI / 180 * carTurnSpeed;
     }
     else if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
-        console.log('Turning left');
-        opicaAnimator.goLeft = true;
+        phi += - Math.PI / 180 * carTurnSpeed;
     } 
 });
 document.addEventListener('keyup', function(event) {
     if (event.code === 'ArrowRight' || event.code === 'KeyD') {
-        console.log('Turning right');
-        opicaAnimator.goRight = false;
+        phi += Math.PI / 180 * carTurnSpeed;
     }
     else if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
-        console.log('Turning left');
-        opicaAnimator.goLeft = false;
+        phi += - Math.PI / 180 * carTurnSpeed;
     } 
 });
+
+//
 
 const light = new Node();
 light.addComponent(new Light({
@@ -122,12 +93,41 @@ function update(time, dt) {
     });
 }
 
+function getMotionVector(phi) {
+    const magnitude = carSpeed;
+    const x = magnitude * Math.cos(phi);
+    const z = magnitude * Math.sin(phi);
+
+    return vec3.fromValues(x, 0, z);
+}
+
 //render() se kliče za vsak izris frejma!
 function render() {
-    const position = opica.getComponentOfType(BetterLinearAnimator).currentPosition;
-    //console.log(camera.components[0].translation, position.map((el, i) => el - cameraOffset[i]));
-    camera.getComponentOfType(Transform).translation = position.map((el, i) => el + cameraOffset[i]);
 
+    if (!play) return; // ob pritisku Space se ustavi
+
+    // rotacije avta glede phi
+
+    const rotationQuaternion = quat.create(avto.getComponentOfType(Transform).rotation);
+
+    quat.fromEuler(rotationQuaternion, 90, -phi * 180 / Math.PI - 90, 0);
+    avto.getComponentOfType(Transform).rotation = rotationQuaternion;
+
+    // premik avta v smeri phi
+
+    const motionVec = getMotionVector(phi);
+
+    const pos = vec3.create();
+
+    vec3.add(pos, avto.getComponentOfType(Transform).translation, motionVec)
+
+    avto.getComponentOfType(Transform).translation = pos;
+
+    // premik kamere glede na avto
+
+    camera.getComponentOfType(Transform).translation = pos.map((el, i) => el + cameraOffset[i]);
+
+    // render izris
     renderer.render(scene, camera);
 }
 
