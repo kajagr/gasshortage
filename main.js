@@ -22,6 +22,12 @@ import { Car } from './Kristjan.js'
 import { RotateAnimator } from './common/engine/animators/RotateAnimator.js';
 import { vec3 } from './lib/gl-matrix-module.js';
 import { quat } from './lib/gl-matrix-module.js';
+import { Physics } from './Physics.js';
+
+import {
+    calculateAxisAlignedBoundingBox,
+    mergeAxisAlignedBoundingBoxes,
+} from '../../../common/engine/core/MeshUtils.js';
 
 const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
@@ -31,6 +37,8 @@ const gltfLoader = new GLTFLoader();
 await gltfLoader.load('common/models/scena.gltf');
 
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
+
+const physics = new Physics(scene);
 
 // postavitev kamere
 const camera = scene.find(node => node.getComponentOfType(Camera));
@@ -46,6 +54,27 @@ var carTurnSpeed = 5;
 var phi = 0;
 
 var play = true;
+
+// zaznavanje trkov
+
+avto.isDynamic = true;
+
+const mapa = avto.parent;
+mapa.children.forEach((objekt) => {
+    if (objekt != camera && objekt != avto) {
+        objekt.isStatic = true;
+    }
+});
+
+scene.traverse(node => {
+    const model = node.getComponentOfType(Model);
+    if (!model) {
+        return;
+    }
+
+    const boxes = model.primitives.map(primitive => calculateAxisAlignedBoundingBox(primitive.mesh));
+    node.aabb = mergeAxisAlignedBoundingBoxes(boxes);
+});
 
 //
 
@@ -91,6 +120,8 @@ function update(time, dt) {
             component.update?.(time, dt);
         }
     });
+
+    physics.update(time, dt);
 }
 
 function getMotionVector(phi) {
@@ -120,6 +151,7 @@ function render() {
     const pos = vec3.create();
 
     vec3.add(pos, avto.getComponentOfType(Transform).translation, motionVec)
+    pos[1] = 0;
 
     avto.getComponentOfType(Transform).translation = pos;
 
