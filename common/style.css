@@ -4,7 +4,7 @@ body, html {
 }
 
 * {
-    font-family: sans-serif;
+    font-family: 'Bebas Neue', sans-serif;;
 }
 
 .fullscreen {
@@ -22,6 +22,101 @@ body, html {
     position: fixed;
     left: 0;
     top: 0;
+}
+
+#playButton {
+    position: fixed;
+    text-align: center;
+    top: 0%;
+    font-size: 60px;
+    color: #fff;
+    z-index: 2000;
+}
+
+#gameLogo {
+    position: relative;
+    height: 70%;
+}
+
+#timer {
+    position: fixed;
+    text-align: center;
+    top: 0;
+    padding-top: 10px;
+    font-size: 40px;
+    color: #fff;
+    z-index: 2000;
+}
+
+#gasTankMax {
+    position: fixed;
+    height: 30px;
+    width: 30%;
+    margin-left: 35%;
+    margin-right: 35%;
+    bottom: 5%;
+    background-color: #878686;
+    border-radius: 10px;
+    border-style: solid;
+    border-color: #000;
+}
+  
+#gasTankCurrent {
+    width: 100%;
+    height: 100%;
+    background-color: #ecae27;
+    border-radius: 10px;
+    text-align: left;
+    text-indent: 5px;
+    font-size: x-large;
+}
+
+#popup-background {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+}
+
+#pause {
+    position: fixed;
+    text-align: center;
+    top: 45%;
+    font-size: 60px;
+    color: #fff;
+    z-index: 2000;
+}
+
+#gameOver {
+    position: fixed;
+    text-align: center;
+    top: 40%;
+    font-size: 60px;
+    color: #fff;
+    z-index: 2000;
+}
+
+#restartButton {
+    position: relative;
+    text-align: center;
+    font-size: 60px;
+    color: #fff;
+    z-index: 2000;
+}
+
+.outlineShadow {
+    text-shadow:
+    -1px -1px 0 #000,
+     0   -1px 0 #000,
+     1px -1px 0 #000,
+     1px  0   0 #000,
+     1px  1px 0 #000,
+     0    1px 0 #000,
+    -1px  1px 0 #000,
+    -1px  0   0 #000;
 }
 
 .no-touch {

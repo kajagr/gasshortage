@@ -43,17 +43,33 @@ const physics = new Physics(scene);
 // postavitev kamere
 const camera = scene.find(node => node.getComponentOfType(Camera));
 camera.components[1].far = 1000;
-const cameraOffset = [50,120,120]
-camera.getComponentOfType(Transform).rotation = [-0.33, 0.2, 0.15, 1];
+const cameraOffset = [120, 120*Math.sqrt(2), 120]
+camera.getComponentOfType(Transform).rotation = quat.fromEuler(quat.create(), -45, -45 + 90, 0);
+
+/* const cameraOffset = [50,120,120]
+camera.getComponentOfType(Transform).rotation = [-0.33, 0.2, 0.15, 1]; */
 
 // specifikacije igre
 
 const avto = gltfLoader.loadNode('mustang')
-var carSpeed = 0.2;
-var carTurnSpeed = 5;
-var phi = 0;
 
-var play = true;
+const defaultCarSpeed = 0.3;
+const defaultCarTurnSpeed = 5;
+const defaultPhi = 0;
+
+var carSpeed = defaultCarSpeed;
+var carTurnSpeed = defaultCarTurnSpeed;
+var phi = defaultPhi;
+const defaultPoraba = 0.025;
+
+var play = false;
+var doRender = true;
+var gameOver = false;
+
+var timeDriving = 0;
+var gasTankMax = 100;
+var gasTank = gasTankMax;
+var poraba = defaultPoraba;
 
 // zaznavanje trkov
 
@@ -81,13 +97,18 @@ scene.traverse(node => {
 // game controls: <Space> = pavza, <A> = levo, <D> = desno
 document.addEventListener('keydown', function(event) {
     if (event.code === 'Space' || event.key === ' ') {
-        console.log('Stop!');
-        //probi dostopat do linear animatorja drugače kot po indexu, bolj sigurno
-        console.log(avto.components)
-        if(play){
-            play = false;
-        } else {
-            play = true;
+        if (!gameOver) {
+            if(play){
+                play = false;
+                clearInterval(timer);
+                blackBackground.style.display = 'block';
+                pauseElement.style.display = 'block';
+            } else {
+                play = true;
+                countDrivingTime();
+                blackBackground.style.display = 'none';
+                pauseElement.style.display = 'none';
+            }
         }
     }
     else if (event.code === 'ArrowRight' || event.code === 'KeyD') {
@@ -105,6 +126,80 @@ document.addEventListener('keyup', function(event) {
         phi += - Math.PI / 180 * carTurnSpeed;
     } 
 });
+
+//
+
+const playButton = document.querySelector('#playButton');
+const gasTankMaxElement = document.querySelector('#gasTankMax');
+const gasTankCurrentElement = document.querySelector('#gasTankCurrent');
+const timerElement = document.querySelector('#timer');
+const blackBackground = document.querySelector('#popup-background');
+const pauseElement = document.querySelector('#pause');
+const gameOverElement = document.querySelector('#gameOver');
+const restartButton = document.querySelector('#restartButton');
+
+playButton.addEventListener('click', () => {
+    playButton.style.display = 'none';
+    gasTankMaxElement.style.display = 'block';
+    timerElement.style.display = 'block';
+    blackBackground.style.display = 'none';
+    play = true;
+    countDrivingTime();
+});
+
+restartButton.addEventListener('click', () => {
+    carSpeed = defaultCarSpeed;
+    carTurnSpeed = defaultCarTurnSpeed;
+    phi = defaultPhi;
+    timeDriving = 0;
+    gasTank = gasTankMax;
+    poraba = defaultPoraba;
+    gameOver = false;
+    avto.getComponentOfType(Transform).translation = [0,0,0];
+    play = true;
+    countDrivingTime();
+    blackBackground.style.display = 'none';
+    gameOverElement.style.display = 'none';
+    restartButton.style.display = 'none';
+});
+
+//
+
+var timer;
+
+Number.prototype.toHHMMSS = function () {
+    var minutes = Math.floor(this / 60000).toFixed(0);
+    var seconds = ((this % 60000) / 1000).toFixed(0);
+    var milliseconds = ((this % 1000) / 10).toFixed(0);
+    if (seconds == 60) {
+        minutes++;
+        seconds = 0;
+    }
+    return (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds + ":" + (milliseconds < 10 ? '0' : '') + milliseconds;
+}
+
+function countDrivingTime(){
+    timer = setInterval(function() {
+        timeDriving++;
+        gasTank -= poraba;
+        if (timeDriving % 1000 == 0) {
+            carSpeed += 0.05;
+            poraba += 0.005;
+            console.log(carSpeed, poraba);
+        }
+        if (gasTank <= 0) {
+            clearInterval(timer);
+            gasTank = 0;
+            gameOver = true;
+            play = false;
+            gameOverElement.style.display = 'block';
+            blackBackground.style.display = 'block';
+            restartButton.style.display = 'block';
+        }
+        timerElement.innerHTML = '<i class="fa-solid fa-hourglass-end"></i> ' +(timeDriving*10).toHHMMSS();
+        gasTankCurrentElement.style.width = ((gasTank / gasTankMax) * 100) + "%";
+      }, 10);
+}
 
 //
 
@@ -135,29 +230,34 @@ function getMotionVector(phi) {
 //render() se kliče za vsak izris frejma!
 function render() {
 
-    if (!play) return; // ob pritisku Space se ustavi
+    if (!doRender) return; // ob pritisku Space se ustavi
 
-    // rotacije avta glede phi
+    const pos = avto.getComponentOfType(Transform).translation;
 
-    const rotationQuaternion = quat.create(avto.getComponentOfType(Transform).rotation);
+    if (play) {
 
-    quat.fromEuler(rotationQuaternion, 90, -phi * 180 / Math.PI - 90, 0);
-    avto.getComponentOfType(Transform).rotation = rotationQuaternion;
+        // rotacije avta glede phi
 
-    // premik avta v smeri phi
+        const rotationQuaternion = quat.create(avto.getComponentOfType(Transform).rotation);
 
-    const motionVec = getMotionVector(phi);
+        quat.fromEuler(rotationQuaternion, 90, -phi * 180 / Math.PI - 90, 0);
+        avto.getComponentOfType(Transform).rotation = rotationQuaternion;
 
-    const pos = vec3.create();
+        // premik avta v smeri phi
 
-    vec3.add(pos, avto.getComponentOfType(Transform).translation, motionVec)
-    pos[1] = 0;
+        const motionVec = getMotionVector(phi);
 
-    avto.getComponentOfType(Transform).translation = pos;
+        vec3.add(pos, pos, motionVec)
+        pos[1] = 0;
+
+        avto.getComponentOfType(Transform).translation = pos;
+
+    }
 
     // premik kamere glede na avto
 
     camera.getComponentOfType(Transform).translation = pos.map((el, i) => el + cameraOffset[i]);
+
 
     // render izris
     renderer.render(scene, camera);
