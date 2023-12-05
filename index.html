@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="common/style.css">
     <script src="lib/gl-matrix-min.js"></script>
     <script type="module" src="main.js"></script>
+    <script type="module" src="Physics.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet"> 
@@ -18,12 +19,15 @@
         <div id="timer" class="outlineShadow" style="display: none;">
             <i class="fa-solid fa-hourglass-end"></i> 00:00:00
         </div>
-        <div input="button" id="playButton" class="outlineShadow">
+        <div input="button" id="playButton" class="outlineShadow" style="display: block;">
             <img id="gameLogo" src="common/models/logo.png" alt="Gas Shortage!">
             <div>Play<span id="playB"></span></div>
         </div>
         <div id="gasTankMax" style="display: none;">
             <div id="gasTankCurrent"><i class="fa-solid fa-gas-pump"></i></div>
+        </div>
+        <div id="HPMax" style="display: none;">
+            <div id="HPCurrent"><i class="fa-solid fa-heart"></i></i></div>
         </div>
         <div id="pause" class="outlineShadow" style="display: none;">
             <i class="fa-solid fa-circle-pause"></i>
@@ -32,6 +36,23 @@
             Game Over
             <div type="button" id="restartButton" class="outlineShadow" style="display: none;"><i class="fa-solid fa-rotate-left"></i></div>
         </div>
+        <table id="vehicleTable" style="display: none;">
+            <th colspan="4">Choose Vehicle</th>
+            <tr>
+                <td class="chooseVehicleItem" class="outlineShadow">
+                    <input type="image" id="mustang" class="vehIcon" src="common/models/mustang_icon.png" alt="mustang">
+                </td>
+                <td class="chooseVehicleItem" class="outlineShadow">
+                    <input type="image" id="lambo" class="vehIcon"  src="common/models/lambo_icon.png" alt="lambo">
+                </td>
+                <td class="chooseVehicleItem" class="outlineShadow">
+                    <input type="image" id="tesla" class="vehIcon"  src="common/models/tesla_icon.png" alt="tesla">
+                </td>
+                <td class="chooseVehicleItem" class="outlineShadow">
+                    <input type="image" id="tank" class="vehIcon"  src="common/models/tank_icon.png" alt="tank">
+                </td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>

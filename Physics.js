@@ -1,6 +1,9 @@
 import { vec3, mat4 } from '../../../lib/gl-matrix-module.js';
 import { getGlobalModelMatrix } from '../../../common/engine/core/SceneUtils.js';
 import { Transform } from '../../../common/engine/core.js';
+import { trkAvta } from './main.js'
+
+var cooldown = false;
 
 export class Physics {
 
@@ -64,6 +67,26 @@ export class Physics {
         if (!isColliding) {
             return;
         }
+
+        
+        function resolveAfter2Seconds() {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                resolve();
+                }, 2000);
+            });
+        }
+
+        async function asyncCall() {
+            if (cooldown) return;
+            cooldown = true;
+            trkAvta();
+            const result = await resolveAfter2Seconds();
+            cooldown = false;
+          }
+          
+          asyncCall();
+
 
         // Move node A minimally to avoid collision.
         const diffa = vec3.sub(vec3.create(), bBox.max, aBox.min);

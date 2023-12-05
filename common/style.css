@@ -54,7 +54,7 @@ body, html {
     width: 30%;
     margin-left: 35%;
     margin-right: 35%;
-    bottom: 5%;
+    bottom: 50px;
     background-color: #878686;
     border-radius: 10px;
     border-style: solid;
@@ -68,7 +68,30 @@ body, html {
     border-radius: 10px;
     text-align: left;
     text-indent: 5px;
-    font-size: x-large;
+    font-size: 26px;
+}
+
+#HPMax {
+    position: fixed;
+    height: 30px;
+    width: 30%;
+    margin-left: 35%;
+    margin-right: 35%;
+    bottom: 10px;
+    background-color: #878686;
+    border-radius: 10px;
+    border-style: solid;
+    border-color: #000;
+}
+  
+#HPCurrent {
+    width: 100%;
+    height: 100%;
+    background-color: #d95151;
+    border-radius: 10px;
+    text-align: left;
+    text-indent: 4px;
+    font-size: 26px;
 }
 
 #popup-background {
@@ -107,6 +130,16 @@ body, html {
     z-index: 2000;
 }
 
+table {
+    position: fixed;
+    text-align: center;
+    width: 30%;
+    top: 30%;
+    font-size: 70px;
+    color: #fff;
+    z-index: 2000;
+}
+
 .outlineShadow {
     text-shadow:
     -1px -1px 0 #000,
@@ -117,6 +150,18 @@ body, html {
      0    1px 0 #000,
     -1px  1px 0 #000,
     -1px  0   0 #000;
+}
+
+.vehIcon {
+    width: 60%;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: rgba(199, 199, 199, 0.8);
+    background-color: rgba(0, 0, 0, 0.8)
+}
+
+#vehIcon:hover {
+    background-color: rgba(88, 88, 88, 0.8);
 }
 
 .no-touch {

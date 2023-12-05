@@ -120,7 +120,10 @@
                 109,
                 110,
                 111,
-                112
+                112,
+                113,
+                114,
+                115
             ]
         }
     ],
@@ -138,6 +141,11 @@
                 0.5000001788139343,
                 0.5000001788139343,
                 0.5000001788139343
+            ],
+            "translation" : [
+                28.103408813476562,
+                -7.214298725128174,
+                0
             ]
         },
         {
@@ -1833,6 +1841,66 @@
                 0,
                 0.7071068286895752
             ]
+        },
+        {
+            "mesh" : 112,
+            "name" : "lambo",
+            "rotation" : [
+                0.5000000596046448,
+                -0.5,
+                0.5,
+                0.5
+            ],
+            "scale" : [
+                0.5015819668769836,
+                0.5015819668769836,
+                0.5015819668769836
+            ],
+            "translation" : [
+                13.527660369873047,
+                -7.1655497550964355,
+                0
+            ]
+        },
+        {
+            "mesh" : 113,
+            "name" : "tesla",
+            "rotation" : [
+                0.5000000596046448,
+                -0.5,
+                0.5,
+                0.5
+            ],
+            "scale" : [
+                0.5484291911125183,
+                0.5484291911125183,
+                0.5484291911125183
+            ],
+            "translation" : [
+                -0.7555990815162659,
+                -7.263046741485596,
+                0
+            ]
+        },
+        {
+            "mesh" : 114,
+            "name" : "tank",
+            "rotation" : [
+                0.5,
+                -0.5,
+                0.5,
+                0.5
+            ],
+            "scale" : [
+                0.4719496965408325,
+                0.4719496965408325,
+                0.4719496965408325
+            ],
+            "translation" : [
+                -18.57311248779297,
+                -6.751189708709717,
+                0
+            ]
         }
     ],
     "cameras" : [
@@ -3447,6 +3515,48 @@
                         "TEXCOORD_0" : 378
                     },
                     "indices" : 7,
+                    "material" : 0
+                }
+            ]
+        },
+        {
+            "name" : "lambo",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 379,
+                        "NORMAL" : 380,
+                        "TEXCOORD_0" : 381
+                    },
+                    "indices" : 382,
+                    "material" : 0
+                }
+            ]
+        },
+        {
+            "name" : "tesla",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 383,
+                        "NORMAL" : 384,
+                        "TEXCOORD_0" : 385
+                    },
+                    "indices" : 386,
+                    "material" : 0
+                }
+            ]
+        },
+        {
+            "name" : "tank",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 387,
+                        "NORMAL" : 388,
+                        "TEXCOORD_0" : 389
+                    },
+                    "indices" : 390,
                     "material" : 0
                 }
             ]
@@ -6877,6 +6987,108 @@
             "componentType" : 5126,
             "count" : 24,
             "type" : "VEC2"
+        },
+        {
+            "bufferView" : 379,
+            "componentType" : 5126,
+            "count" : 5432,
+            "max" : [
+                4.602264404296875,
+                9.714584350585938,
+                1.9732074737548828
+            ],
+            "min" : [
+                -4.5947418212890625,
+                -11.649215698242188,
+                -3.175412654876709
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 380,
+            "componentType" : 5126,
+            "count" : 5432,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 381,
+            "componentType" : 5126,
+            "count" : 5432,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 382,
+            "componentType" : 5123,
+            "count" : 12264,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 383,
+            "componentType" : 5126,
+            "count" : 7074,
+            "max" : [
+                3.727325439453125,
+                9.591339111328125,
+                1.8034104108810425
+            ],
+            "min" : [
+                -3.7277679443359375,
+                -8.950061798095703,
+                -3.5209996700286865
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 384,
+            "componentType" : 5126,
+            "count" : 7074,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 385,
+            "componentType" : 5126,
+            "count" : 7074,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 386,
+            "componentType" : 5123,
+            "count" : 16170,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 387,
+            "componentType" : 5126,
+            "count" : 2171,
+            "max" : [
+                6.147575378417969,
+                10.580405235290527,
+                3.437391996383667
+            ],
+            "min" : [
+                -6.222419738769531,
+                -17.696273803710938,
+                -6.612028121948242
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 388,
+            "componentType" : 5126,
+            "count" : 2171,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 389,
+            "componentType" : 5126,
+            "count" : 2171,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 390,
+            "componentType" : 5123,
+            "count" : 9312,
+            "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
@@ -8774,6 +8986,66 @@
             "buffer" : 0,
             "byteLength" : 192,
             "byteOffset" : 76914184
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 65184,
+            "byteOffset" : 76914376
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 65184,
+            "byteOffset" : 76979560
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 43456,
+            "byteOffset" : 77044744
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 24528,
+            "byteOffset" : 77088200
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 84888,
+            "byteOffset" : 77112728
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 84888,
+            "byteOffset" : 77197616
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 56592,
+            "byteOffset" : 77282504
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 32340,
+            "byteOffset" : 77339096
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 26052,
+            "byteOffset" : 77371436
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 26052,
+            "byteOffset" : 77397488
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 17368,
+            "byteOffset" : 77423540
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 18624,
+            "byteOffset" : 77440908
         }
     ],
     "samplers" : [
@@ -8784,7 +9056,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 76914376,
+            "byteLength" : 77459532,
             "uri" : "scena.bin"
         }
     ]
