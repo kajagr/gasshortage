@@ -189,25 +189,10 @@ document.addEventListener('keydown', function(event) {
                 pauseElement.style.display = 'none';
             }
         }
-    } /* else if (play) {
-        if (event.code === 'ArrowRight' || event.code === 'KeyD') {
-            phi += Math.PI / 180 * carTurnSpeed;
-        }
-        else if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
-            phi += - Math.PI / 180 * carTurnSpeed;
-        }
-    } */
+    }
 });
 document.addEventListener('keyup', function(event) {
     delete keys[event.code];
-    /* if (play) {
-        if (event.code === 'ArrowRight' || event.code === 'KeyD') {
-            phi += Math.PI / 180 * carTurnSpeed;
-        }
-        else if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
-            phi += - Math.PI / 180 * carTurnSpeed;
-        }
-    } */
 });
 
 // gumbi in UI elementi
