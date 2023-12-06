@@ -77,18 +77,25 @@ export class Physics {
             });
         }
 
-        async function asyncCall() {
+        async function asyncCall(item, tip) {
             if (cooldown) return;
             cooldown = true;
-            const [item, tip] = a.isGasCan? [a, "GasCan"] : b.isGasCan? [b, "GasCan"] : a.isHeart? [a, "heart"] : b.isHeart? [b, "heart"] : [null, null];
             trkAvta(item, tip);
-            if (tip == null) {
-                const result = await resolveAfter2Seconds();
-            }
+            const result = await resolveAfter2Seconds();
             cooldown = false;
         }
-          
-        asyncCall();
+
+        const [item, tip] = a.isGasCan? [a, "GasCan"] : b.isGasCan? [b, "GasCan"] : a.isHeart? [a, "heart"] : b.isHeart? [b, "heart"] : [null, null];
+
+        if (tip == null) {
+            asyncCall(item, tip);
+        } else {
+            if (item.used != true) {
+                item.used = true;
+                trkAvta(item, tip);
+                return;
+            }
+        }
 
         // Move node A minimally to avoid collision.
         const diffa = vec3.sub(vec3.create(), bBox.max, aBox.min);

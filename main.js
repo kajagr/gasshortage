@@ -61,7 +61,7 @@ var avto = vehicles[imeAvta];
 const podlaga = gltfLoader.loadNode('podlaga')
 
 const defaultCarSpeed = 0.3;
-const defaultCarTurnSpeed = 5;
+const defaultCarTurnSpeed = 1.6;
 const defaultPhi = 0;
 
 var carSpeed = defaultCarSpeed;
@@ -170,7 +170,11 @@ export async function trkAvta(item, tip) {
 }
 
 // game controls: <Space> = pavza, <A> = levo, <D> = desno
+
+var keys = {};
+
 document.addEventListener('keydown', function(event) {
+    keys[event.code] = true;
     if (event.code === 'Space' || event.key === ' ') {
         if (!gameOver) {
             if(play){
@@ -185,24 +189,25 @@ document.addEventListener('keydown', function(event) {
                 pauseElement.style.display = 'none';
             }
         }
-    } else if (play) {
+    } /* else if (play) {
         if (event.code === 'ArrowRight' || event.code === 'KeyD') {
             phi += Math.PI / 180 * carTurnSpeed;
         }
         else if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
             phi += - Math.PI / 180 * carTurnSpeed;
-        } 
-    }
+        }
+    } */
 });
 document.addEventListener('keyup', function(event) {
-    if (play) {
+    delete keys[event.code];
+    /* if (play) {
         if (event.code === 'ArrowRight' || event.code === 'KeyD') {
             phi += Math.PI / 180 * carTurnSpeed;
         }
         else if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
             phi += - Math.PI / 180 * carTurnSpeed;
         }
-    }
+    } */
 });
 
 // gumbi in UI elementi
@@ -234,9 +239,11 @@ function prepareNewGame() {
     HPCurrentElement.style.width = "100%";
     gasCans.forEach((gasCan) => {
         gasCan.getComponentOfType(Transform).translation[1] = -0.99;
+        gasCan.used = undefined;
     });
     hearts.forEach((heart) => {
         heart.getComponentOfType(Transform).translation[1] = -0.99;
+        heart.used = undefined;
     });
     gameOver = false;
     avto.getComponentOfType(Transform).translation = [0, vehicleOffsetsY[imeAvta], 0]; // reset pozicije avta
@@ -304,6 +311,7 @@ async function every10Seconds() {
     const gasCan = usedGasCans.shift();
     if (gasCan) {
         gasCan.getComponentOfType(Transform).translation[1] = -0.99;
+        gasCan.used = undefined;
     }
 }
 
@@ -311,6 +319,16 @@ async function every30Seconds() {
     const heart = usedHearts.shift();
     if (heart) {
         heart.getComponentOfType(Transform).translation[1] = -0.99;
+        heart.used = undefined;
+    }
+}
+
+async function changePhi() {
+    if (keys['ArrowRight'] || keys['KeyD']) {
+        phi += Math.PI / 180 * carTurnSpeed;
+    }
+    else if (keys['ArrowLeft'] || keys['KeyA']) {
+        phi += - Math.PI / 180 * carTurnSpeed;
     }
 }
 
@@ -324,6 +342,7 @@ function countDrivingTime(){
         if (timeDriving % 3000 == 0) {
             every30Seconds();
         }
+        changePhi();
         if (gasTank <= 0) {
             clearInterval(timer);
             gasTank = 0;
