@@ -80,11 +80,37 @@ var poraba = defaultPoraba;
 var maxHP = 100;
 var HP = maxHP;
 var damage = 20;
+var gasCanSize = 20;
+var heartSize = 20;
 
 // zaznavanje trkov
 
 for (const vehicle of Object.values(vehicles)) {
     vehicle.isDynamic = true; // vsa vozila so dinamična
+}
+
+// gas cans
+
+var gasCans = [];
+
+for (var i=1; i<30; i++) {
+    const gasCan = gltfLoader.loadNode('GasCan.' + (i<10 ? '00' : i<100 ? '0' : '') + i);
+    if (gasCan != null) {
+        gasCan.isGasCan = true;
+        gasCans.push(gasCan);
+    }
+}
+
+// hearts
+
+var hearts = [];
+
+for (var i=1; i<30; i++) {
+    const heart = gltfLoader.loadNode('heart.' + (i<10 ? '00' : i<100 ? '0' : '') + i);
+    if (heart != null) {
+        heart.isHeart = true;
+        hearts.push(heart);
+    }
 }
 
 const mapa = avto.parent;
@@ -104,20 +130,43 @@ scene.traverse(node => {
     node.aabb = mergeAxisAlignedBoundingBoxes(boxes);
 });
 
-// trk avta z objekti in odštevanje HP
+// trk avta z objekti in odštevanje HP, ali pa polnjenje goriva in HP
 
-export function trkAvta() {
-    HP -= damage;
-    if (HP <= 0) {
-        clearInterval(timer);
-        HP = 0;
-        gameOver = true;
-        play = false;
-        gameOverElement.style.display = 'block';
-        blackBackground.style.display = 'block';
-        restartButton.style.display = 'block';
+var usedGasCans = [];
+var usedHearts = [];
+
+export async function trkAvta(item, tip) {
+    if (tip == null) {
+        HP -= damage;
+        if (HP <= 0) {
+            clearInterval(timer);
+            HP = 0;
+            gameOver = true;
+            play = false;
+            gameOverElement.style.display = 'block';
+            blackBackground.style.display = 'block';
+            restartButton.style.display = 'block';
+        }
+        HPCurrentElement.style.width = ((HP / maxHP) * 100) + "%";
+    } else {
+        if (item != null) {
+            if (tip == "GasCan") {
+                if (!usedGasCans.includes(item)) {
+                    usedGasCans.push(item);
+                    gasTank += (gasTankMax - gasTank) < gasCanSize ? (gasTankMax - gasTank) : gasCanSize;
+                }
+            } else if (tip == "heart") {
+                if (!usedHearts.includes(item)) {
+                    usedHearts.push(item);
+                    HP += (maxHP - HP) < heartSize ? (maxHP - HP) : heartSize;
+                    HPCurrentElement.style.width = ((HP / maxHP) * 100) + "%";
+                }
+            }
+            const pos = item.getComponentOfType(Transform).translation;
+            vec3.add(pos, pos, [0, -10, 0]);
+            item.getComponentOfType(Transform).translation = pos
+        }
     }
-    HPCurrentElement.style.width = ((HP / maxHP) * 100) + "%";
 }
 
 // game controls: <Space> = pavza, <A> = levo, <D> = desno
@@ -183,6 +232,12 @@ function prepareNewGame() {
     poraba = defaultPoraba;
     HP = maxHP;
     HPCurrentElement.style.width = "100%";
+    gasCans.forEach((gasCan) => {
+        gasCan.getComponentOfType(Transform).translation[1] = -0.99;
+    });
+    hearts.forEach((heart) => {
+        heart.getComponentOfType(Transform).translation[1] = -0.99;
+    });
     gameOver = false;
     avto.getComponentOfType(Transform).translation = [0, vehicleOffsetsY[imeAvta], 0]; // reset pozicije avta
     play = true;
@@ -241,15 +296,33 @@ Number.prototype.toHHMMSS = function () {
     return (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds + ":" + (milliseconds < 10 ? '0' : '') + milliseconds;
 }
 
-// štetje časa in porabe goriva
+// štetje časa, večanje hitrosti, dvigovanje porabe goriva, postavljanje gas can-ov in heart-ov
+
+async function every10Seconds() {
+    carSpeed += 0.01;
+    poraba += 0.001;
+    const gasCan = usedGasCans.shift();
+    if (gasCan) {
+        gasCan.getComponentOfType(Transform).translation[1] = -0.99;
+    }
+}
+
+async function every30Seconds() {
+    const heart = usedHearts.shift();
+    if (heart) {
+        heart.getComponentOfType(Transform).translation[1] = -0.99;
+    }
+}
 
 function countDrivingTime(){
     timer = setInterval(function() {
         timeDriving++;
         gasTank -= poraba;
         if (timeDriving % 1000 == 0) {
-            carSpeed += 0.05;
-            poraba += 0.005;
+            every10Seconds();	
+        }
+        if (timeDriving % 3000 == 0) {
+            every30Seconds();
         }
         if (gasTank <= 0) {
             clearInterval(timer);
@@ -269,7 +342,7 @@ function countDrivingTime(){
 
 const light = new Node();
 light.addComponent(new Light({
-    ambient: 0.5,
+    ambient: 0.7,
 }));
 scene.addChild(light);
 

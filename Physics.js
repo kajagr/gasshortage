@@ -80,13 +80,15 @@ export class Physics {
         async function asyncCall() {
             if (cooldown) return;
             cooldown = true;
-            trkAvta();
-            const result = await resolveAfter2Seconds();
+            const [item, tip] = a.isGasCan? [a, "GasCan"] : b.isGasCan? [b, "GasCan"] : a.isHeart? [a, "heart"] : b.isHeart? [b, "heart"] : [null, null];
+            trkAvta(item, tip);
+            if (tip == null) {
+                const result = await resolveAfter2Seconds();
+            }
             cooldown = false;
-          }
+        }
           
-          asyncCall();
-
+        asyncCall();
 
         // Move node A minimally to avoid collision.
         const diffa = vec3.sub(vec3.create(), bBox.max, aBox.min);
