@@ -34,7 +34,7 @@ const physics = new Physics(scene);
 
 // postavitev kamere (isometric view)
 const camera = scene.find(node => node.getComponentOfType(Camera));
-camera.components[1].far = 1000;
+camera.components[1].far = 400;
 const cameraOffset = [120, 120*Math.sqrt(2), 120]
 camera.getComponentOfType(Transform).rotation = quat.fromEuler(quat.create(), -45, -45 + 90, 0);
 
