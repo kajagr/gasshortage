@@ -70,6 +70,7 @@ var phi = defaultPhi;
 const defaultPoraba = 0.025;
 
 var play = false;
+var inProgress = false;
 var doRender = true;
 var gameOver = false;
 
@@ -84,10 +85,6 @@ var gasCanSize = 20;
 var heartSize = 20;
 
 // zaznavanje trkov
-
-for (const vehicle of Object.values(vehicles)) {
-    vehicle.isDynamic = true; // vsa vozila so dinamična
-}
 
 // gas cans
 
@@ -142,6 +139,7 @@ export async function trkAvta(item, tip) {
             clearInterval(timer);
             HP = 0;
             gameOver = true;
+            inProgress = false;
             play = false;
             gameOverElement.style.display = 'block';
             blackBackground.style.display = 'block';
@@ -176,7 +174,7 @@ var keys = {};
 document.addEventListener('keydown', function(event) {
     keys[event.code] = true;
     if (event.code === 'Space' || event.key === ' ') {
-        if (!gameOver) {
+        if (!gameOver && inProgress) {
             if(play){
                 play = false;
                 clearInterval(timer);
@@ -233,6 +231,7 @@ function prepareNewGame() {
     gameOver = false;
     avto.getComponentOfType(Transform).translation = [0, vehicleOffsetsY[imeAvta], 0]; // reset pozicije avta
     play = true;
+    inProgress = true;
     if (timer) clearInterval(timer); // reset štetja časa
     countDrivingTime(); // začetek štetja časa
     // visible:
@@ -267,6 +266,7 @@ vehicleSelect.forEach((vehicleSelectButton) => {
         // izbere avto
         imeAvta = vehicleSelectButton.id;
         avto = vehicles[imeAvta];
+        avto.isDynamic = true;
         // začne igro
         prepareNewGame()
     });
@@ -332,6 +332,7 @@ function countDrivingTime(){
             clearInterval(timer);
             gasTank = 0;
             gameOver = true;
+            inProgress = false;
             play = false;
             gameOverElement.style.display = 'block';
             blackBackground.style.display = 'block';
