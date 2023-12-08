@@ -230,6 +230,29 @@ function prepareNewGame() {
     });
     gameOver = false;
     avto.getComponentOfType(Transform).translation = [0, vehicleOffsetsY[imeAvta], 0]; // reset pozicije avta
+    // luči na avtu
+    
+    const carlight = new Node();
+
+    const rotationQuaternion = quat.create();
+    quat.fromEuler(rotationQuaternion, 0, 90, 0);
+
+    carlight.addComponent(new Transform({
+        rotation: rotationQuaternion,
+        //translation: [0,0,10]
+    }));
+
+    carlight.addComponent(new Light({
+        color : [255, 0, 0],
+        ambient: 0.2
+    }));
+    
+    avto.addChild(carlight);
+    console.log(avto);
+    // const rotationQuaternion = quat.create(avto.getComponentOfType(Transform).rotation);
+    // quat.fromEuler(rotationQuaternion, 90, -phi * 180 / Math.PI - 90, 0);
+    // avto.getComponentOfType(Transform).rotation = rotationQuaternion;
+    //
     play = true;
     inProgress = true;
     if (timer) clearInterval(timer); // reset štetja časa
@@ -345,12 +368,19 @@ function countDrivingTime(){
 
 // luči
 
+// const light = new Node();
+// light.addComponent(new Light({
+//     ambient: 0.7,
+// }));
+// scene.addChild(light);
 const light = new Node();
+// light.addComponent(new Transform({
+//     translation: [0, 2, 1],
+// }));
 light.addComponent(new Light({
-    ambient: 0.7,
+        ambient: 0.7,
 }));
 scene.addChild(light);
-
 //
 
 function update(time, dt) {
@@ -380,6 +410,7 @@ function render() {
 
     const pos = avto != null ? avto.getComponentOfType(Transform).translation : [0, 0, 0];
 
+    
     if (play) {
 
         // rotacije avta glede phi
@@ -388,7 +419,15 @@ function render() {
 
         quat.fromEuler(rotationQuaternion, 90, -phi * 180 / Math.PI - 90, 0);
         avto.getComponentOfType(Transform).rotation = rotationQuaternion;
-
+        
+        const lucNode = avto.children[0]; //avto.firstChild; ne dela??
+        const lucTransform = lucNode.getComponentOfType(Transform);
+        // //console.log(avto,luc)
+        // const lightRotationQuaternion = quat.create();
+        // quat.fromEuler(lightRotationQuaternion, 0, 90, 0);
+        // lucTransform.rotation = lightRotationQuaternion;
+        lucTransform.translation = [0,0,14];
+    
         // premik avta v smeri phi
 
         const motionVec = getMotionVector(phi);
@@ -397,7 +436,11 @@ function render() {
         pos[1] = vehicleOffsetsY[imeAvta];
 
         avto.getComponentOfType(Transform).translation = pos;
+        
+        // const cameraPosition = pos;  // Replace with actual camera position
 
+        // // Set camera uniforms in the shader program
+        // gl.uniform3fv(gl.getUniformLocation(shader.wgsl, "camera.position"))
     }
 
     // premik kamere glede na avto
@@ -406,7 +449,7 @@ function render() {
 
 
     // render izris
-    renderer.render(scene, camera);
+    renderer.render(scene, camera, light);
 }
 
 function resize({ displaySize: { width, height }}) {
