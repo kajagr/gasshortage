@@ -60,21 +60,24 @@ var avto = vehicles[imeAvta];
 
 const podlaga = gltfLoader.loadNode('podlaga')
 
+var gameSpeed = 1;
+
 const defaultCarSpeed = 0.3;
 const defaultCarTurnSpeed = 1.6;
 const defaultPhi = 0;
 
+var framesPassed = 0;
+
 var carSpeed = defaultCarSpeed;
 var carTurnSpeed = defaultCarTurnSpeed;
 var phi = defaultPhi;
-const defaultPoraba = 0.025;
+const defaultPoraba = 0.020;
 
 var play = false;
 var inProgress = false;
 var doRender = true;
 var gameOver = false;
 
-var timeDriving = 0;
 var gasTankMax = 100;
 var gasTank = gasTankMax;
 var poraba = defaultPoraba;
@@ -136,7 +139,6 @@ export async function trkAvta(item, tip) {
     if (tip == null) {
         HP -= damage;
         if (HP <= 0) {
-            clearInterval(timer);
             HP = 0;
             gameOver = true;
             inProgress = false;
@@ -177,12 +179,10 @@ document.addEventListener('keydown', function(event) {
         if (!gameOver && inProgress) {
             if(play){
                 play = false;
-                clearInterval(timer);
                 blackBackground.style.display = 'block';
                 pauseElement.style.display = 'block';
             } else {
                 play = true;
-                countDrivingTime();
                 blackBackground.style.display = 'none';
                 pauseElement.style.display = 'none';
             }
@@ -200,13 +200,21 @@ const gasTankMaxElement = document.querySelector('#gasTankMax');
 const gasTankCurrentElement = document.querySelector('#gasTankCurrent');
 const HPCurrentElement = document.querySelector('#HPCurrent');
 const HPMaxElement = document.querySelector('#HPMax');
-const timerElement = document.querySelector('#timer');
+const scoreElement = document.querySelector('#score');
 const blackBackground = document.querySelector('#popup-background');
 const pauseElement = document.querySelector('#pause');
 const gameOverElement = document.querySelector('#gameOver');
 const restartButton = document.querySelector('#restartButton');
 const vehicleTableElement = document.querySelector('#vehicleTable');
 const vehicleSelect = document.querySelectorAll('.vehIcon');
+const gameSpeedSlider = document.querySelector('#gameSpeedSlider');
+const gameSpeedElement = document.querySelector('#gameSpeed');
+const slideContainerElement = document.querySelector('.slidecontainer');
+
+gameSpeedSlider.addEventListener('input', () => {
+    gameSpeed = gameSpeedSlider.value / 1000;
+    gameSpeedElement.innerHTML = "Game speed (" + gameSpeed.toFixed(1) + 'x)';
+});
 
 // priprava nove igre
 
@@ -215,7 +223,7 @@ function prepareNewGame() {
     carSpeed = defaultCarSpeed;
     carTurnSpeed = defaultCarTurnSpeed;
     phi = defaultPhi;
-    timeDriving = 0;
+    framesPassed = 0;
     gasTank = gasTankMax;
     poraba = defaultPoraba;
     HP = maxHP;
@@ -232,12 +240,11 @@ function prepareNewGame() {
     avto.getComponentOfType(Transform).translation = [0, vehicleOffsetsY[imeAvta], 0]; // reset pozicije avta
     play = true;
     inProgress = true;
-    if (timer) clearInterval(timer); // reset štetja časa
-    countDrivingTime(); // začetek štetja časa
     // visible:
     gasTankMaxElement.style.display = 'block';
     HPMaxElement.style.display = 'block';
-    timerElement.style.display = 'block';
+    scoreElement.style.display = 'block';
+    slideContainerElement.style.display = 'block';
     // hidden:
     vehicleTableElement.style.display = 'none';
     blackBackground.style.display = 'none';
@@ -274,25 +281,11 @@ vehicleSelect.forEach((vehicleSelectButton) => {
 
 //
 
-var timer; // interval variable
-
-// formatiranje časa
-Number.prototype.toHHMMSS = function () {
-    var minutes = Math.floor(this / 60000).toFixed(0);
-    var seconds = ((this % 60000) / 1000).toFixed(0);
-    var milliseconds = ((this % 1000) / 10).toFixed(0);
-    if (seconds == 60) {
-        minutes++;
-        seconds = 0;
-    }
-    return (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds + ":" + (milliseconds < 10 ? '0' : '') + milliseconds;
-}
-
 // štetje časa, večanje hitrosti, dvigovanje porabe goriva, postavljanje gas can-ov in heart-ov
 
-async function every10Seconds() {
-    carSpeed += 0.01;
-    poraba += 0.001;
+async function every1000Frames() {
+    carSpeed += 0.01 * gameSpeed;
+    poraba += 0.001 * gameSpeed;
     const gasCan = usedGasCans.shift();
     if (gasCan) {
         gasCan.getComponentOfType(Transform).translation[1] = -0.99;
@@ -300,7 +293,7 @@ async function every10Seconds() {
     }
 }
 
-async function every30Seconds() {
+async function every4000Frames() {
     const heart = usedHearts.shift();
     if (heart) {
         heart.getComponentOfType(Transform).translation[1] = -0.99;
@@ -310,37 +303,11 @@ async function every30Seconds() {
 
 async function changePhi() {
     if (keys['ArrowRight'] || keys['KeyD']) {
-        phi += Math.PI / 180 * carTurnSpeed;
+        phi += Math.PI / 180 * carTurnSpeed * gameSpeed;
     }
     else if (keys['ArrowLeft'] || keys['KeyA']) {
-        phi += - Math.PI / 180 * carTurnSpeed;
+        phi += - Math.PI / 180 * carTurnSpeed * gameSpeed;
     }
-}
-
-function countDrivingTime(){
-    timer = setInterval(function() {
-        timeDriving++;
-        gasTank -= poraba;
-        if (timeDriving % 1000 == 0) {
-            every10Seconds();	
-        }
-        if (timeDriving % 3000 == 0) {
-            every30Seconds();
-        }
-        changePhi();
-        if (gasTank <= 0) {
-            clearInterval(timer);
-            gasTank = 0;
-            gameOver = true;
-            inProgress = false;
-            play = false;
-            gameOverElement.style.display = 'block';
-            blackBackground.style.display = 'block';
-            restartButton.style.display = 'block';
-        }
-        timerElement.innerHTML = '<i class="fa-solid fa-hourglass-end"></i> ' +(timeDriving*10).toHHMMSS();
-        gasTankCurrentElement.style.width = ((gasTank / gasTankMax) * 100) + "%";
-      }, 10);
 }
 
 // luči
@@ -366,11 +333,36 @@ function update(time, dt) {
 // funkcija za izračun vektorja premika avta glede na kot phi
 
 function getMotionVector(phi) {
-    const magnitude = carSpeed;
+    const magnitude = carSpeed * gameSpeed;
     const x = magnitude * Math.cos(phi);
     const z = magnitude * Math.sin(phi);
 
     return vec3.fromValues(x, 0, z);
+}
+
+// funkcija, ki se kliče za vsak izris frejma, da se izračunajo vse spremenljivke, ampak ne vožnja avta
+
+function everyFrame() {
+    framesPassed += gameSpeed;
+    gasTank -= poraba * gameSpeed;
+    if (framesPassed % 1000 == 0) {
+        every1000Frames();	
+    }
+    if (framesPassed % 4000 == 0) {
+        every4000Frames();
+    }
+    changePhi();
+    if (gasTank <= 0) {
+        gasTank = 0;
+        gameOver = true;
+        inProgress = false;
+        play = false;
+        gameOverElement.style.display = 'block';
+        blackBackground.style.display = 'block';
+        restartButton.style.display = 'block';
+    }
+    scoreElement.innerHTML = 'Score: ' + Math.floor(framesPassed);
+    gasTankCurrentElement.style.width = ((gasTank / gasTankMax) * 100) + "%";
 }
 
 //render() se kliče za vsak izris frejma!
@@ -381,6 +373,10 @@ function render() {
     const pos = avto != null ? avto.getComponentOfType(Transform).translation : [0, 0, 0];
 
     if (play) {
+
+        everyFrame();
+
+        // vožnja avta
 
         // rotacije avta glede phi
 

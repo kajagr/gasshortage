@@ -17,7 +17,7 @@
     <div class="fullscreen">
         <canvas id="myCanvas"></canvas>
         <div id="popup-background"></div>
-        <div id="timer" class="outlineShadow" style="display: none;">
+        <div id="score" class="outlineShadow" style="display: none;">
             <i class="fa-solid fa-hourglass-end"></i> 00:00:00
         </div>
         <div input="button" id="playButton" class="outlineShadow" style="display: block;">
@@ -54,6 +54,10 @@
                 </td>
             </tr>
         </table>
+        <div class="slidecontainer" style="display: none;">
+            <div id="gameSpeed" class="outlineShadow">Game Speed (1x)</div>
+            <input type="range" min="500" max="1500" step="100" value="1000" class="slider" id="gameSpeedSlider">
+        </div>
     </div>
 </body>
 </html>
