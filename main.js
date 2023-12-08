@@ -1,12 +1,19 @@
+import { GUI } from './lib/dat.gui.module.js';
 import { ResizeSystem } from './common/engine/systems/ResizeSystem.js';
 import { UpdateSystem } from './common/engine/systems/UpdateSystem.js';
 
 import { GLTFLoader } from './common/engine/loaders/GLTFLoader.js';
+import { ImageLoader } from './common/engine/loaders/ImageLoader.js';
+import { JSONLoader } from './common/engine/loaders/JSONLoader.js';
 
 import {
     Camera,
+    Material,
     Model,
     Node,
+    Primitive,
+    Sampler,
+    Texture,
     Transform,
 } from './common/engine/core.js';
 
@@ -248,9 +255,9 @@ function prepareNewGame() {
         translation: [0,0,14]
     }));
 
-    carlight.addComponent(new Light({
-        ambient: 0.2
-    }));
+    // carlight.addComponent(new Light({
+    //     ambient: 0.2
+    // }));
     
     avto.addChild(carlight);
     console.log(avto);
@@ -333,10 +340,38 @@ async function changePhi() {
 // luči
 
 const light = new Node();
-light.addComponent(new Light({
-        ambient: 0.7,
+light.addComponent(new Transform({
+    translation: [0, 2, 1],
 }));
+light.addComponent(new Light());
+//ambient: 0.7,
 scene.addChild(light);
+const material = new Material({
+    baseTexture: new Texture({
+        image: await new ImageLoader().load('./grass.png'),
+        sampler: new Sampler({
+            minFilter: 'nearest',
+            magFilter: 'nearest',
+        }),
+    }),
+});
+
+material.diffuse = 1;
+material.specular = 1;
+material.shininess = 50;
+
+// const model = new Node();
+// model.addComponent(new Model({
+//     primitives: [
+//         new Primitive({
+//             mesh: await new JSONLoader().loadMesh('./monkey.json'),
+//             material,
+//         }),
+//     ],
+// }));
+// scene.addChild(model);
+const materials = gltfData.materials;
+const primitives = gltfData.primitives;
 
 function update(time, dt) {
     scene.traverse(node => {
@@ -430,6 +465,7 @@ function render() {
 
 
     // render izris
+    //console.log(light)
     renderer.render(scene, camera, light);
 }
 
@@ -439,3 +475,36 @@ function resize({ displaySize: { width, height }}) {
 
 new ResizeSystem({ canvas, resize }).start();
 new UpdateSystem({ update, render }).start();
+
+const gui = new GUI();
+gui.add(renderer, 'perFragment');
+
+const lightSettings = light.getComponentOfType(Light);
+const lightFolder = gui.addFolder('Light');
+lightFolder.open();
+lightFolder.add(lightSettings, 'intensity', 0, 5);
+lightFolder.addColor(lightSettings, 'color');
+
+const lightTransform = light.getComponentOfType(Transform);
+const lightPosition = lightFolder.addFolder('Position');
+lightPosition.open();
+lightPosition.add(lightTransform.translation, 0, -10, 10).name('x');
+lightPosition.add(lightTransform.translation, 1, -10, 10).name('y');
+lightPosition.add(lightTransform.translation, 2, -10, 10).name('z');
+
+const lightAttenuation = lightFolder.addFolder('Attenuation');
+lightAttenuation.open();
+lightAttenuation.add(lightSettings.attenuation, 0, 0, 5).name('constant');
+lightAttenuation.add(lightSettings.attenuation, 1, 0, 2).name('linear');
+lightAttenuation.add(lightSettings.attenuation, 2, 0, 1).name('quadratic');
+
+const materialFolder = gui.addFolder('Material');
+materialFolder.open();
+materialFolder.add(material, 'diffuse', 0, 1);
+materialFolder.add(material, 'specular', 0, 1);
+materialFolder.add(material, 'shininess', 1, 200);
+
+const ambientLightFolder = gui.addFolder('Ambient Light');
+ambientLightFolder.open();
+ambientLightFolder.add(lightSettings, 'ambient', 0, 1).name('Intensity');
+ambientLightFolder.addColor(lightSettings, 'ambientColor').name('Color');
