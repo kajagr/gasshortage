@@ -68,6 +68,9 @@ const defaultPhi = 0;
 
 var framesPassed = 0;
 
+const startSunAngle = Math.PI / 6;
+var sunAngle = startSunAngle;
+
 var carSpeed = defaultCarSpeed;
 var carTurnSpeed = defaultCarTurnSpeed;
 var phi = defaultPhi;
@@ -224,6 +227,7 @@ function prepareNewGame() {
     carTurnSpeed = defaultCarTurnSpeed;
     phi = defaultPhi;
     framesPassed = 0;
+    sunAngle = startSunAngle;
     gasTank = gasTankMax;
     poraba = defaultPoraba;
     HP = maxHP;
@@ -238,26 +242,6 @@ function prepareNewGame() {
     });
     gameOver = false;
     avto.getComponentOfType(Transform).translation = [0, vehicleOffsetsY[imeAvta], 0]; // reset pozicije avta
-    // luči na avtu
-    
-    const carlight = new Node();
-    // const rotationQuaternion = quat.create();
-    // quat.fromEuler(rotationQuaternion, 0, 90, 0);
-    carlight.addComponent(new Transform({
-        //rotation: rotationQuaternion,
-        translation: [0,0,14]
-    }));
-
-    carlight.addComponent(new Light({
-        ambient: 1
-    }));
-    
-    avto.addChild(carlight);
-    console.log(avto);
-    // const rotationQuaternion = quat.create(avto.getComponentOfType(Transform).rotation);
-    // quat.fromEuler(rotationQuaternion, 90, -phi * 180 / Math.PI - 90, 0);
-    // avto.getComponentOfType(Transform).rotation = rotationQuaternion;
-    //
     play = true;
     inProgress = true;
     // visible:
@@ -311,22 +295,6 @@ async function every1000Frames() {
         gasCan.getComponentOfType(Transform).translation[1] = -0.99;
         gasCan.used = undefined;
     }
-
-    const luc = scene.find(node => node.getComponentOfType(Light));
-    const light = luc.getComponentOfType(Light)
-    console.log(light)
-    if (light.ambient <= 0.3){
-        day = false;
-    } else if (light.ambient >= 0.9){
-        day = true;
-    }
-
-    if (day) {
-        light.ambient -= 0.05;//0.05
-    } else {
-        light.ambient += 0.05;
-    }
-    console.log(day, light.ambient)
 }
 
 async function every4000Frames() {
@@ -335,7 +303,6 @@ async function every4000Frames() {
         heart.getComponentOfType(Transform).translation[1] = -0.99;
         heart.used = undefined;
     }
-   
 }
 
 async function changePhi() {
@@ -350,8 +317,11 @@ async function changePhi() {
 // luči
 
 const light = new Node();
+light.addComponent(new Transform({
+    translation: [600,600*Math.sqrt(2),600]
+}));
 light.addComponent(new Light({
-        ambient: 0.9,
+    ambient: 0.3,
 }));
 scene.addChild(light);
 
@@ -380,7 +350,6 @@ function getMotionVector(phi) {
 function everyFrame() {
     framesPassed += gameSpeed;
     gasTank -= poraba * gameSpeed;
-    console.log(framesPassed)
     if ( Math.floor(framesPassed) % 1000 == 0) {
         every1000Frames();	
     }
@@ -399,6 +368,17 @@ function everyFrame() {
     }
     scoreElement.innerHTML = 'Score: ' + Math.floor(framesPassed);
     gasTankCurrentElement.style.width = ((gasTank / gasTankMax) * 100) + "%";
+    
+    // dnevno/nočni cikel
+    if ((sunAngle % (Math.PI * 2)) < Math.PI) {
+        sunAngle += 0.001 * gameSpeed;
+        light.getComponentOfType(Transform).translation = [600*Math.cos(sunAngle),600*Math.sin(sunAngle), 0];
+        light.getComponentOfType(Light).ambient = 0.15 + 0.15 * Math.sin(sunAngle);
+    } else {
+        sunAngle += 0.002 * gameSpeed; // noč je krajša
+        light.getComponentOfType(Transform).translation = vec3.add(vec3.create(), avto.getComponentOfType(Transform).translation, [0, 8, 0]);
+        light.getComponentOfType(Light).ambient = 0.05;
+    }
 }
 
 //render() se kliče za vsak izris frejma!
@@ -407,7 +387,6 @@ function render() {
     if (!doRender) return; // ob pritisku Space se ustavi
 
     const pos = avto != null ? avto.getComponentOfType(Transform).translation : [0, 0, 0];
-
     
     if (play) {
 
@@ -421,15 +400,6 @@ function render() {
 
         quat.fromEuler(rotationQuaternion, 90, -phi * 180 / Math.PI - 90, 0);
         avto.getComponentOfType(Transform).rotation = rotationQuaternion;
-        
-        //rotacija luči -> ni še v uporabi
-        // const lucNode = avto.children[0]; //avto.firstChild; ne dela??
-        // const lucTransform = lucNode.getComponentOfType(Transform);
-        // // //console.log(avto,luc)
-        // // const lightRotationQuaternion = quat.create();
-        // // quat.fromEuler(lightRotationQuaternion, 0, 90, 0);
-        // // lucTransform.rotation = lightRotationQuaternion;
-        // lucTransform.translation = [0,0,14];
     
         // premik avta v smeri phi
 
