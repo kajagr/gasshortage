@@ -318,7 +318,7 @@ async function changePhi() {
 
 const light = new Node();
 light.addComponent(new Transform({
-    translation: [600,600*Math.sqrt(2),600]
+    translation: [600*Math.cos(sunAngle),600*Math.sin(sunAngle), 0]
 }));
 light.addComponent(new Light({
     ambient: 0.3,

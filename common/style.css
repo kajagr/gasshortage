@@ -160,7 +160,7 @@ table {
     background-color: rgba(0, 0, 0, 0.8)
 }
 
-#vehIcon:hover {
+.vehIcon:hover {
     background-color: rgba(88, 88, 88, 0.8);
 }
 
