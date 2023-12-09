@@ -86,7 +86,7 @@ var HP = maxHP;
 var damage = 20;
 var gasCanSize = 20;
 var heartSize = 20;
-
+var day = true;
 // zaznavanje trkov
 
 // gas cans
@@ -249,7 +249,7 @@ function prepareNewGame() {
     }));
 
     carlight.addComponent(new Light({
-        ambient: 0.2
+        ambient: 1
     }));
     
     avto.addChild(carlight);
@@ -311,6 +311,22 @@ async function every1000Frames() {
         gasCan.getComponentOfType(Transform).translation[1] = -0.99;
         gasCan.used = undefined;
     }
+
+    const luc = scene.find(node => node.getComponentOfType(Light));
+    const light = luc.getComponentOfType(Light)
+    console.log(light)
+    if (light.ambient <= 0.3){
+        day = false;
+    } else if (light.ambient >= 0.9){
+        day = true;
+    }
+
+    if (day) {
+        light.ambient -= 0.05;//0.05
+    } else {
+        light.ambient += 0.05;
+    }
+    console.log(day, light.ambient)
 }
 
 async function every4000Frames() {
@@ -319,6 +335,7 @@ async function every4000Frames() {
         heart.getComponentOfType(Transform).translation[1] = -0.99;
         heart.used = undefined;
     }
+   
 }
 
 async function changePhi() {
@@ -334,7 +351,7 @@ async function changePhi() {
 
 const light = new Node();
 light.addComponent(new Light({
-        ambient: 0.7,
+        ambient: 0.9,
 }));
 scene.addChild(light);
 
@@ -363,10 +380,11 @@ function getMotionVector(phi) {
 function everyFrame() {
     framesPassed += gameSpeed;
     gasTank -= poraba * gameSpeed;
-    if (framesPassed % 1000 == 0) {
+    console.log(framesPassed)
+    if ( Math.floor(framesPassed) % 1000 == 0) {
         every1000Frames();	
     }
-    if (framesPassed % 4000 == 0) {
+    if (Math.floor(framesPassed) % 4000 == 0) {
         every4000Frames();
     }
     changePhi();
