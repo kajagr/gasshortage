@@ -20,9 +20,19 @@
         <div id="score" class="outlineShadow" style="display: none;">
             <i class="fa-solid fa-hourglass-end"></i> 00:00:00
         </div>
-        <div input="button" id="playButton" class="outlineShadow" style="display: block;">
+        <div id="playButton" class="outlineShadow" style="display: block;">
             <img id="gameLogo" src="common/models/logo.png" alt="Gas Shortage!">
-            <div>Play<span id="playB"></span></div>
+            <div input="button">Play<span id="playB"></span></div><br>
+            <div id="controls">Controls:
+                <div id="controls">
+                    <div class="controlItem">turn left:<br>
+                        <i class="fa-solid fa-arrow-left"></i> | <i class="fa-solid fa-a"></i>
+                    </div>
+                    <div class="controlItem">turn right:<br>
+                        <i class="fa-solid fa-arrow-right"></i> | <i class="fa-solid fa-d"></i>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="gasTankMax" style="display: none;">
             <div id="gasTankCurrent"><i class="fa-solid fa-gas-pump"></i></div>

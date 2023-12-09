@@ -35,7 +35,7 @@ body, html {
 
 #gameLogo {
     position: relative;
-    height: 70%;
+    height: 60%;
 }
 
 #score {
@@ -212,4 +212,12 @@ input[type=range]:focus {
 
 input[type=range]:focus::-webkit-slider-runnable-track {
     background: #585858;
+}
+
+#controls {
+    font-size: 25px;
+}
+
+.controlItem {
+    font-size: 18px;
 }
