@@ -38,6 +38,8 @@ struct MaterialUniforms {
 struct LightUniforms {
     position : vec3f,
     ambient : f32,
+    direction: vec3f,
+    coneAngle: f32,
 }
 
 @group(0) @binding(0) var<uniform> camera : CameraUniforms;
@@ -65,17 +67,52 @@ fn vertex(input : VertexInput) -> VertexOutput {
 
 @fragment
 fn fragment(input : FragmentInput) -> FragmentOutput {
-    var output : FragmentOutput;
+     var output : FragmentOutput;
 
     let N = normalize(input.normal);
     let L = normalize(light.position - input.position);
 
     let lambert = max(dot(N, L), 0);
 
+
     let materialColor = textureSample(baseTexture, baseSampler, input.texcoords) * material.baseFactor;
     let lambertFactor = vec4(vec3(lambert), 1);
     let ambientFactor = vec4(vec3(light.ambient), 1);
     output.color = materialColor * (lambertFactor + ambientFactor);
+    //    let ambientFactor = vec4(vec3(light.ambient), 1);
+    // output.color = materialColor * ambientFactor;
 
     return output;
+    // var output : FragmentOutput;
+
+    // let N = normalize(input.normal);
+    // let L = normalize(light.position - input.position);
+    // let lambert = max(dot(N, L), 0.0);
+
+    // var finalColor: vec3<f32>;
+    // let materialColor = textureSample(baseTexture, baseSampler, input.texcoords) * material.baseFactor;
+    // if (light.coneAngle == 360.0) {
+    //     // Directional light (360 degrees)
+
+    //     let lambertFactor = vec4(vec3(lambert), 1);
+    //     let ambientFactor = vec4(vec3(light.ambient), 1);
+        
+    //      finalColor = vec3(lambert) * vec3(light.ambient);
+    //     //output.color = materialColor * (lambertFactor + ambientFactor);
+    // } else {
+    //     // Spotlight
+    //     let spotDirection = normalize(light.direction);
+    //     let spotIntensity = max(dot(-spotDirection, normalize(L)), 0.0);
+    //     let spotlightEffect = smoothstep(cos(light.coneAngle), 1.0, spotIntensity);
+        
+    //     let lambert = max(dot(N, L), 0);
+    //     let directionalLighting = vec3(lambert) * spotlightEffect;
+        
+    //     let ambientLighting = vec3(light.ambient);
+        
+    //     finalColor = ambientLighting + directionalLighting;
+    // }
+    // // Calculate spotlight direction and intensity based on the cone angle
+    // output.color = vec4(materialColor.rgb * finalColor, 1.0);
+    // return output;
 }

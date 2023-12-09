@@ -216,8 +216,33 @@ gameSpeedSlider.addEventListener('input', () => {
     gameSpeedElement.innerHTML = "Game speed (" + gameSpeed.toFixed(1) + 'x)';
 });
 
-// priprava nove igre
+// luči
+const ambientLight = new Node();
+ambientLight.addComponent(new Transform({
+    //rotation: rotationQuaternion,
+    translation: [0,0,100]
+}));
+ambientLight.addComponent(new Light({
+        ambient: 10,
+        coneAngle: 360.0,
 
+}));
+scene.addChild(ambientLight);
+
+const carLight = new Node();
+carLight.addComponent(new Transform({
+    //rotation: rotationQuaternion,
+    translation: [0,0,14]
+}));
+carLight.addComponent(new Light({
+    ambient: 10,
+    direction: [0, 0, -1], // Adjust the direction based on your needs
+    coneAngle: Math.PI / 4, // Adjust the cone angle based on your needs
+    
+}));
+avto.addChild(carLight);
+
+// priprava nove igre
 function prepareNewGame() {
     // reset vseh spremenljivk
     carSpeed = defaultCarSpeed;
@@ -240,20 +265,23 @@ function prepareNewGame() {
     avto.getComponentOfType(Transform).translation = [0, vehicleOffsetsY[imeAvta], 0]; // reset pozicije avta
     // luči na avtu
     
-    const carlight = new Node();
+    //const carLight = new Node();
     // const rotationQuaternion = quat.create();
     // quat.fromEuler(rotationQuaternion, 0, 90, 0);
-    carlight.addComponent(new Transform({
-        //rotation: rotationQuaternion,
-        translation: [0,0,14]
-    }));
+    // carLight.addComponent(new Transform({
+    //     //rotation: rotationQuaternion,
+    //     translation: [0,0,14]
+    // }));
 
-    carlight.addComponent(new Light({
-        ambient: 0.2
-    }));
+    // carLight.addComponent(new Light({
+    //     ambient: 0.7,
+    //     direction: [0, 0, -1], // Adjust the direction based on your needs
+    //     coneAngle: Math.PI / 4, // Adjust the cone angle based on your needs
+
+    // }));
     
-    avto.addChild(carlight);
-    console.log(avto);
+    // avto.addChild(carLight);
+    //console.log(avto);
     // const rotationQuaternion = quat.create(avto.getComponentOfType(Transform).rotation);
     // quat.fromEuler(rotationQuaternion, 90, -phi * 180 / Math.PI - 90, 0);
     // avto.getComponentOfType(Transform).rotation = rotationQuaternion;
@@ -329,14 +357,6 @@ async function changePhi() {
         phi += - Math.PI / 180 * carTurnSpeed * gameSpeed;
     }
 }
-
-// luči
-
-const light = new Node();
-light.addComponent(new Light({
-        ambient: 0.7,
-}));
-scene.addChild(light);
 
 function update(time, dt) {
     scene.traverse(node => {
@@ -428,9 +448,10 @@ function render() {
 
     camera.getComponentOfType(Transform).translation = pos.map((el, i) => el + cameraOffset[i]);
 
-
+    const lights = [ambientLight, carLight];
+    console.log(lights)
     // render izris
-    renderer.render(scene, camera, light);
+    renderer.render(scene, camera, lights);
 }
 
 function resize({ displaySize: { width, height }}) {

@@ -44,6 +44,7 @@ export class Renderer extends BaseRenderer {
 
     constructor(canvas) {
         super(canvas);
+     //   this.lightBuffers = [];
     }
 
     async initialize() {
@@ -128,26 +129,57 @@ export class Renderer extends BaseRenderer {
         return gpuObjects;
     }
 
-    prepareLight(light) {
-        if (this.gpuObjects.has(light)) {
-            return this.gpuObjects.get(light);
-        }
+    prepareLight(lights) {
+        // if (this.gpuObjects.has(light)) {
+        //     return this.gpuObjects.get(light);
+        // }
 
-        const lightUniformBuffer = this.device.createBuffer({
-            size: 16,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        // const lightUniformBuffer = this.device.createBuffer({
+        //     size: 32,//16,
+        //     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        // });
+
+        // const lightBindGroup = this.device.createBindGroup({
+        //     layout: this.pipeline.getBindGroupLayout(3),
+        //     entries: [
+        //         { binding: 0, resource: { buffer: lightUniformBuffer } },
+        //     ],
+        // });
+
+        // const gpuObjects = { lightUniformBuffer, lightBindGroup };
+        // this.gpuObjects.set(light, gpuObjects);
+        // return gpuObjects;
+        const lightBuffers = lights.map(light => {
+            const lightUniformBuffer = this.device.createBuffer({
+                size: 32,
+                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+            });
+    
+            const lightBindGroup = this.device.createBindGroup({
+                layout: this.pipeline.getBindGroupLayout(3),
+                entries: [
+                    { binding: 0, resource: { buffer: lightUniformBuffer } },
+                ],
+            });
+    
+            return { lightUniformBuffer, lightBindGroup };
         });
+    
+        return lightBuffers;
+    }
 
-        const lightBindGroup = this.device.createBindGroup({
-            layout: this.pipeline.getBindGroupLayout(3),
-            entries: [
-                { binding: 0, resource: { buffer: lightUniformBuffer } },
-            ],
+    renderLights(lights, lightBuffers) {
+        lightBuffers.forEach(({ lightUniformBuffer, lightBindGroup }, index) => {
+            const lightComponent = lights[index].getComponentOfType(Light);
+            const lightMatrix = getGlobalModelMatrix(lights[index]);
+            const lightPosition = mat4.getTranslation(vec3.create(), lightMatrix);
+    
+            this.device.queue.writeBuffer(lightUniformBuffer, 0, lightPosition);
+            this.device.queue.writeBuffer(lightUniformBuffer, 12, new Float32Array(lightComponent.direction));
+            this.device.queue.writeBuffer(lightUniformBuffer, 24, new Float32Array([lightComponent.ambient, lightComponent.coneAngle]));
+    
+            this.renderPass.setBindGroup(3, lightBindGroup); // + index
         });
-
-        const gpuObjects = { lightUniformBuffer, lightBindGroup };
-        this.gpuObjects.set(light, gpuObjects);
-        return gpuObjects;
     }
 
     prepareMaterial(material) {
@@ -177,7 +209,7 @@ export class Renderer extends BaseRenderer {
         return gpuObjects;
     }
 
-    render(scene, camera) {
+    render(scene, camera, lights) {
         if (this.depthTexture.width !== this.canvas.width || this.depthTexture.height !== this.canvas.height) {
             this.recreateDepthTexture();
         }
@@ -209,15 +241,31 @@ export class Renderer extends BaseRenderer {
         this.device.queue.writeBuffer(cameraUniformBuffer, 64, projectionMatrix);
         this.renderPass.setBindGroup(0, cameraBindGroup);
 
-        const light = scene.find(node => node.getComponentOfType(Light));
-        const lightComponent = light.getComponentOfType(Light);
-        const lightMatrix = getGlobalModelMatrix(light);
-        const lightPosition = mat4.getTranslation(vec3.create(), lightMatrix);
-        const { lightUniformBuffer, lightBindGroup } = this.prepareLight(lightComponent);
-        this.device.queue.writeBuffer(lightUniformBuffer, 0, lightPosition);
-        this.device.queue.writeBuffer(lightUniformBuffer, 12,
-            new Float32Array([lightComponent.ambient]));
-        this.renderPass.setBindGroup(3, lightBindGroup);
+        // const light = scene.find(node => node.getComponentOfType(Light));
+        // const lightComponent = light.getComponentOfType(Light);
+        // const lightMatrix = getGlobalModelMatrix(light);
+        // const lightPosition = mat4.getTranslation(vec3.create(), lightMatrix);
+        // //
+        // const lightDirection = vec3.create(); // Calculate the light direction based on your needs
+        // const coneAngle = lightComponent.coneAngle || Math.PI; 
+        // //
+        //const lightBuffers = this.prepareLight(lights);
+        // this.device.queue.writeBuffer(lightUniformBuffer, 0, lightPosition);
+        // // this.device.queue.writeBuffer(lightUniformBuffer, 12,
+        // //     new Float32Array([lightComponent.ambient]));
+        // this.device.queue.writeBuffer(lightUniformBuffer, 12, lightDirection);
+        // this.device.queue.writeBuffer(lightUniformBuffer, 24, new Float32Array([lightComponent.ambient, coneAngle]));
+        // this.renderPass.setBindGroup(3, lightBindGroup);
+        //this.renderLights([scene.find(node => node.getComponentOfType(Light))]);
+        //call prepare lights here??
+        // Render additional lights
+        // prepareLights(lights) {
+        //     this.lightBuffers = this.prepareLight(lights);
+        // }
+        const lightBuffers = this.prepareLight(lights); // Call prepareLight here
+        this.renderLights(lights, lightBuffers); // Use the returned lightBuffers
+
+        this.renderNode(scene);
 
         this.renderNode(scene);
 
