@@ -213,10 +213,22 @@ const vehicleSelect = document.querySelectorAll('.vehIcon');
 const gameSpeedSlider = document.querySelector('#gameSpeedSlider');
 const gameSpeedElement = document.querySelector('#gameSpeed');
 const slideContainerElement = document.querySelector('.slidecontainer');
+const slideContainer2Element = document.querySelector('.slidecontainer2');
+const musicVolumeSlider = document.querySelector('#volumeSlider');
+const musicVolumeElement = document.querySelector('#volumeS');
 
 gameSpeedSlider.addEventListener('input', () => {
     gameSpeed = gameSpeedSlider.value / 1000;
     gameSpeedElement.innerHTML = "Game speed (" + gameSpeed.toFixed(1) + 'x)';
+});
+
+let song = new Audio('common/models/love_is_a_long_road.mp3');
+song.loop = true;
+song.volume = 0.5;
+
+musicVolumeSlider.addEventListener('input', () => {
+    song.volume = musicVolumeSlider.value / 100;
+    musicVolumeElement.innerHTML = "Music volume (" + musicVolumeSlider.value + '%)';
 });
 
 // priprava nove igre
@@ -249,6 +261,7 @@ function prepareNewGame() {
     HPMaxElement.style.display = 'block';
     scoreElement.style.display = 'block';
     slideContainerElement.style.display = 'block';
+    slideContainer2Element.style.display = 'block';
     // hidden:
     vehicleTableElement.style.display = 'none';
     blackBackground.style.display = 'none';
@@ -280,6 +293,7 @@ vehicleSelect.forEach((vehicleSelectButton) => {
         avto.isDynamic = true;
         // začne igro
         prepareNewGame()
+        song.play();
     });
 });
 
